@@ -1,40 +1,44 @@
-import { useState} from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePokemonContext, type Usuario } from '../context/PokemonContext';
-export const RegistroUsuario = () => {
-    const { registrarEntrenador } = usePokemonContext();
+
+export const RegistroUsuario : React.FC = () => {
+    const { registrarEntrenador, Entrenadores, seleccionarEntrenador, EntrenadorActivo } = usePokemonContext();
     const navigate = useNavigate();
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [tipoDoc, setTipoDoc] = useState('CC');
-    const [ pais, setPais] = useState('');
+    const [pais, setPais] = useState('');
     const [ciudad, setCiudad] = useState('');
     const [dni, setDni] = useState('');
-        const [telefono, setTelefono] = useState('');
     const [fechaNacimiento, setFechaNacimiento] = useState('');
+    const [telefono, setTelefono] = useState('');
     const [correo, setCorreo] = useState('');
     const [datosPersonales, setDatosPersonales] = useState(false);
-    const eventoSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+    const eventoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if(!datosPersonales) {
+        if (!datosPersonales) {
             alert('Debe aceptar el tratamiento de datos personales');
             return;
         }
 
         const nuevo: Usuario = {
             id: Date.now(),
-            nombreCompleto: `${nombre} ${apellido}`,
-            documento: {tipo: tipoDoc, numero: dni},
+            nombreCompleto: `${nombre} ${apellido}`.trim(),
+            documento: { tipo: tipoDoc, numero: dni },
             fechaNacimiento,
             correo,
+            telefono,
+            residencia: `${ciudad}, ${pais}`,
             datosPersonales,
-            fechaRegistro: new Date().toISOString()
+            fechaRegistro: new Date().toISOString(),
         };
 
         registrarEntrenador(nuevo);
-        navigate('/buscador');
-    }
+        navigate('/registro');
+    };
 
     return (
         <div>
@@ -48,14 +52,14 @@ export const RegistroUsuario = () => {
                         <label htmlFor="nombre">Nombre</label>
                         <input type="text" id="nombre" name="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required placeholder="Tu nombre" autoComplete="given-name" autoFocus />
                     </div>
-                    <div className="form-group">
+                         <div className="form-group">
                         <label htmlFor="apellido">Apellido</label>
                         <input type="text" id="apellido" name="apellido" value={apellido} onChange={(e) => setApellido(e.target.value)} required placeholder="Tu apellido" autoComplete="family-name" />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="tipoDoc">Tipo de documento</label>
-                        <select id="tipoDoc" name="tipo_doc" value={tipoDoc} onChange={(e) => setTipoDoc(e.target.value)} required>
+                        <label htmlFor="tipo_doc">Tipo de documento</label>
+                        <select id="tipo_doc" name="tipo_doc" value={tipoDoc} onChange={(e) => setTipoDoc(e.target.value)} required>
                             <option value="CC">Cédula de Ciudadanía</option>
                             <option value="CE">Cédula de Extranjería</option>
                             <option value="TI">Tarjeta de Identidad</option>
@@ -77,7 +81,7 @@ export const RegistroUsuario = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="correo">Correo electrónico</label>
+                        <label htmlFor="email">Correo electrónico</label>
                         <input type="email" id="correo" name="email" value={correo} onChange={(e) => setCorreo(e.target.value)} required placeholder="ejemplo@correo.com" autoComplete="email" />
                     </div>
 
@@ -104,7 +108,7 @@ export const RegistroUsuario = () => {
 
                     <div className="form-group consent-group">
                         <label className="checkbox-container">
-                            <input type="checkbox" id="datosPersonales" name="tratamiento_datos" checked={datosPersonales} onChange={(e) => setDatosPersonales(e.target.checked)} required />
+                            <input type="checkbox" id="tratamiento_datos" name="tratamiento_datos" checked={datosPersonales} onChange={(e) => setDatosPersonales(e.target.checked)} required />
                             <span>Acepto la política de <a href="#" className="link-policy">tratamiento de datos personales</a>.</span>
                         </label>
                     </div>
@@ -112,8 +116,22 @@ export const RegistroUsuario = () => {
                     <button type="submit" className="btn-submit">Enviar mensaje</button>
                 </form>
             </div>
+            {Entrenadores.length > 0 &&(
+                <div>
+                    <h3> cambiar Entrenador</h3>
+                    <div>
+                        {Entrenadores.map((user) => (
+                            <button key={user.id} type="button" onClick={() => seleccionarEntrenador(user)}
+                            style = {{
+                                backgroundColor: EntrenadorActivo?.id === user.id ? '#ff00fff6' : '#e0e0c0',
+                                color : EntrenadorActivo?.id === user.id ? 'white': 'black',
+                                padding: '6px 12px'
+                            }}>{user.nombreCompleto}</button>
+                        ))}
+                        
+                        </div>
+                </div>
+            )}
         </div>
     );
-
-}
-
+};
