@@ -41,13 +41,15 @@ export const RegistroUsuario : React.FC = () => {
     };
 
     return (
-        <div>
-            <header>
-                <h2> Registro de Entrenadores</h2>
-            </header>
+        <section className="page-section registration-page">
+            <div className="section-heading">
+                <span className="panel-kicker">00 / TRAINER ID</span>
+                <h2>Registro de entrenadores</h2>
+                <p>Configura tu perfil para activar la consola y guardar tus capturas.</p>
+            </div>
 
-            <div>
-                <form onSubmit={eventoSubmit}>
+            <div className="form-container">
+                <form className="registration-form" onSubmit={eventoSubmit}>
                     <div className="form-group">
                         <label htmlFor="nombre">Nombre</label>
                         <input type="text" id="nombre" name="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required placeholder="Tu nombre" autoComplete="given-name" autoFocus />
@@ -113,25 +115,25 @@ export const RegistroUsuario : React.FC = () => {
                         </label>
                     </div>
 
-                    <button type="submit" className="btn-submit">Enviar mensaje</button>
+                    <button type="submit" className="btn-submit">Activar entrenador</button>
                 </form>
             </div>
             {Entrenadores.length > 0 &&(
-                <div>
-                    <h3> cambiar Entrenador</h3>
-                    <div>
+                <div className="trainer-switcher">
+                    <div className="switcher-heading">
+                        <span className="panel-kicker">ACTIVE PROFILES</span>
+                        <h3>Cambiar entrenador</h3>
+                    </div>
+                    <div className="trainer-list">
                         {Entrenadores.map((user) => (
-                            <button key={user.id} type="button" onClick={() => seleccionarEntrenador(user)}
-                            style = {{
-                                backgroundColor: EntrenadorActivo?.id === user.id ? '#ff00fff6' : '#e0e0c0',
-                                color : EntrenadorActivo?.id === user.id ? 'white': 'black',
-                                padding: '6px 12px'
-                            }}>{user.nombreCompleto}</button>
+                            <button className={`trainer-chip ${EntrenadorActivo?.id === user.id ? 'trainer-chip-active' : ''}`} key={user.id} type="button" onClick={() => seleccionarEntrenador(user)}>
+                                <span>{EntrenadorActivo?.id === user.id ? '●' : '○'}</span>
+                                {user.nombreCompleto}
+                            </button>
                         ))}
-                        
-                        </div>
+                    </div>
                 </div>
             )}
-        </div>
+        </section>
     );
 };

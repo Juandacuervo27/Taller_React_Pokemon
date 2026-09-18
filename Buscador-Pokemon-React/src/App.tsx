@@ -8,24 +8,29 @@ function App() {
   return (
     <PokemonProvider>
       <BrowserRouter>
-        <header>
-          <h1>Registro de entrenadores y Pokemon en React</h1>
+        <div className="app-shell">
+          <header className="app-header">
+            <div className="brand-lockup">
+              <span className="brand-kicker">POKÉMON // ROTOM SYSTEM</span>
+              <h1>Registro de entrenadores y Pokémon</h1>
+            </div>
 
-          <nav>
-            <NavLink  to="/registro" className={({isActive}) => (isActive ? 'active-tab' : '')}>Registro</NavLink>
-            <NavLink  to="/buscador" className={({isActive}) => (isActive ? 'active-tab' : '')}>Buscador</NavLink>
-            <NavLink  to="/inventario" className={({isActive}) => (isActive ? 'active-tab' : '')}>Inventario</NavLink>
-          </nav>
-        </header>
+            <nav className="nav-links" aria-label="Navegación principal">
+              <NavLink to="/registro" className={({isActive}) => (isActive ? 'active-tab' : '')}>Registro</NavLink>
+              <NavLink to="/buscador" className={({isActive}) => (isActive ? 'active-tab' : '')}>Buscador</NavLink>
+              <NavLink to="/inventario" className={({isActive}) => (isActive ? 'active-tab' : '')}>Inventario</NavLink>
+            </nav>
+          </header>
 
-        <main>
-          <Routes>
+          <main className="app-main">
+            <Routes>
               <Route path="/registro" element={<RegistroUsuario />} />
               <Route path="/buscador" element={<BuscadorPokemon />} />
               <Route path="/inventario" element={<InventarioPokemon />} />
               <Route path="*" element={<Navigate to="/registro" replace />} />
-          </Routes>
-        </main>
+            </Routes>
+          </main>
+        </div>
       </BrowserRouter>
     </PokemonProvider>
   );

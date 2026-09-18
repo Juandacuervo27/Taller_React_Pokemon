@@ -1,4 +1,4 @@
-import React,{ createContext, useContext,useState,useEffect} from "react";
+import React,{ createContext, useContext, useState, useEffect} from "react";
 
 export interface Usuario {
     id: number;
@@ -43,25 +43,37 @@ export const usePokemonContext = () => {
 };
 
 export const PokemonProvider : React.FC<{children : React.ReactNode}> = ({children}) => {
-    const [EntrenadoresActivo,setentrenadoresActivo] = useState<Usuario[]>([]);
-    const [EntrenadorActivo,setentrenadorActivo] = useState<Usuario | null>(null);
-    const [MochilaActual,setmochilaActual] = useState<pokemonTarjeta[]>([]);
-    
-    useEffect(() => {
+    // Recuperamos los entrenadores guardados para no perderlos al recargar la pagina.
+    const [EntrenadoresActivo,setentrenadoresActivo] = useState<Usuario[]>(() => {
         const data = localStorage.getItem('LISTA_ENTRENADORES');
-        if(data){
-            const LISTA : Usuario []= JSON.parse(data);
-            setentrenadoresActivo(LISTA);
-            const idActivo = localStorage.getItem('entrenador_Activo_id');
-            if (idActivo){
-                const encotrado = LISTA.find(U => U.id.toString() === idActivo);
-                if (encotrado) seleccionarEntrenador(encotrado)
-            }
+        return data ? JSON.parse(data) : [];
+    });
+
+    // Recuperamos el entrenador que estaba activo antes de cerrar o recargar la pagina.
+    const [EntrenadorActivo, setentrenadorActivo] = useState<Usuario | null>(() => {
+        const idActivo = localStorage.getItem('entrenador_Activo_id');
+        const data = localStorage.getItem('LISTA_ENTRENADORES');
+        if (idActivo && data) {
+            const lista: Usuario[] = JSON.parse(data);
+            return lista.find((u) => u.id.toString() === idActivo) || null;
         }
-    },[]);
+        return null;
+    });
+
+    // La mochila empieza con los datos del entrenador activo, si existe.
+    const [MochilaActual,setmochilaActual] = useState<pokemonTarjeta[]>(() => {
+        if (!EntrenadorActivo) return [];
+        // La segunda clave permite conservar mochilas creadas antes de corregir
+        // la diferencia entre "Mochila" y "mochila".
+        const data = localStorage.getItem(`mochila_${EntrenadorActivo.id}`)
+            || localStorage.getItem(`Mochila_${EntrenadorActivo.id}`);
+        return data ? JSON.parse(data) : [];
+    });
 
     const cargarMochilaEntrenador = (UsuarioId: number) =>{
-        const data = localStorage.getItem(`mochila_${UsuarioId}`);
+        // Esta es la unica clave que usamos para leer y guardar la mochila.
+        const data = localStorage.getItem(`mochila_${UsuarioId}`)
+            || localStorage.getItem(`Mochila_${UsuarioId}`);
         setmochilaActual(data ? JSON.parse(data) : []);
     }
 
@@ -80,23 +92,29 @@ export const PokemonProvider : React.FC<{children : React.ReactNode}> = ({childr
 
     const GuardarMochila = (pokemon:pokemonTarjeta)=> {
         if (!EntrenadorActivo) return;
-        const actualizada = [...MochilaActual, {...pokemon, esFavorito: false}];
+
+        // React puede conservar una mochila antigua si el usuario borra el localStorage
+        // desde DevTools. Por eso leemos la fuente actual antes de agregar el Pokemon.
+        const data = localStorage.getItem(`mochila_${EntrenadorActivo.id}`)
+            || localStorage.getItem(`Mochila_${EntrenadorActivo.id}`);
+        const mochilaGuardada: pokemonTarjeta[] = data ? JSON.parse(data) : [];
+        const actualizada = [...mochilaGuardada, {...pokemon, esFavorito: false}];
         setmochilaActual(actualizada);
-        localStorage.setItem(`Mochila_${EntrenadorActivo.id}`,JSON.stringify(actualizada));
+        localStorage.setItem(`mochila_${EntrenadorActivo.id}`,JSON.stringify(actualizada));
     };
 
     const actualizarFavorito = (pokemonId : number) =>{
         if (!EntrenadorActivo) return;
         const actualizada = MochilaActual.map(p => p.id === pokemonId ? {...p, esFavorito: !p.esFavorito} : p);
         setmochilaActual(actualizada);
-        localStorage.setItem(`Mochila_${EntrenadorActivo.id}`,JSON.stringify(actualizada));
+        localStorage.setItem(`mochila_${EntrenadorActivo.id}`,JSON.stringify(actualizada));
     }
 
     const eliminarpokemon = (pokemonId : number) =>{
         if (!EntrenadorActivo) return;
         const filtrado = MochilaActual.filter(p => p.id !== pokemonId);
         setmochilaActual(filtrado);
-        localStorage.setItem(`Mochila_${EntrenadorActivo.id}`,JSON.stringify(filtrado));
+        localStorage.setItem(`mochila_${EntrenadorActivo.id}`,JSON.stringify(filtrado));
     }
 
     return (

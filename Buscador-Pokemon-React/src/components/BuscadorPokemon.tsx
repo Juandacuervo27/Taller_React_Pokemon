@@ -57,52 +57,53 @@ export const BuscadorPokemon: React.FC = () => {
     }
 
     return(
-        <><div className="banner-sesion">
+        <section className="page-section search-page">
+            <div className="banner-sesion">
             {EntrenadorActivo ? (
                 <p> Mochila Activa de : <strong>{EntrenadorActivo.nombreCompleto}</strong></p>
             ) : (
                 <p> No hay entrenador Activo. ve al formulario de Registro para activarlo, socio.</p>
 
             )}
-        </div><form onSubmit={buscarPokemon}>
-                <div>
+            </div>
+
+            <form className="search-panel" onSubmit={buscarPokemon}>
+                <div className="search-heading">
+                    <span className="panel-kicker">01 / POKÉDEX SCANNER</span>
+                    <h2>Busca un Pokémon</h2>
+                    <p>Consulta la Pokédex y añade tu captura a la mochila activa.</p>
+                </div>
+                <div className="search-controls">
+                    <div className="search-field">
                     <label>Buscar pokemon</label>
                     <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="ej: pikachu, charmander" />
-
+                    </div>
+                    <button className="btn-submit" type="submit" disabled={cargando}>
+                        {cargando ? 'ESCANEANDO...' : 'Buscar'}
+                    </button>
                 </div>
-                <button type="submit" disabled={cargando}>
-                    {cargando ? 'ESCANEANDO...' : 'buscar'}
-                </button>
-                {mensajeError && <p>{mensajeError}</p>}
+                {mensajeError && <p className="message-error">{mensajeError}</p>}
             </form>
         
 
         {pokemonActual && (
-            <div>
+            <article className="tarjeta-pokemon">
+            <span className="panel-kicker">SCAN COMPLETE / DATA RECEIVED</span>
+            <img className="pokemon-hero" src={pokemonActual.image} alt={pokemonActual.name} />
             <h3>{pokemonActual.name}</h3>
-            <img src={pokemonActual.image} alt={pokemonActual.name} />
-            <p>Elemento: {''}
-                <span style={{
-                    backgroundColor: 
-                    pokemonActual.type === 'fire' ? '#ff0000':
-                    pokemonActual.type === 'water' ? '#024aff':
-                    pokemonActual.type === 'grass' ? '#02ff30':
-                    pokemonActual.type === 'electric' ? '#fbff02': '#cdcace',
-                    color: 'white',
-                    padding: '3px 8px',
-                    borderRadius: '10px'
-                }}>
+            <p className="pokemon-stat">Elemento: {''}
+                <span className={`type-badge type-${pokemonActual.type}`}>
                     {pokemonActual.type.toUpperCase()}
                 </span>
             </p>
-            <p>Experiencias Base: <strong>{pokemonActual.baseExperience}</strong></p>
+            <p className="pokemon-stat">Experiencia base <strong>{pokemonActual.baseExperience}</strong></p>
             <button type="button" className="btn-capturar" onClick={clickGuardar} disabled={!EntrenadorActivo}>
                 Capturar
             </button>
-            </div>
+            </article>
         )}
 
-        </>
+        </section>
     );
 
 }
